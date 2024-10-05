@@ -42,8 +42,18 @@ public:
     void add(Figure* figure) {
         figures.push_back(figure);
     };
-    void undo(){};
-    void clear(){};
+    void undo() {
+        if (!figures.empty()) {
+            delete figures.back();
+            figures.pop_back();
+        }
+    };
+    void clear() {
+        for (auto& figure : figures) {
+            delete figure;
+        }
+        figures.clear();
+    };
     void save(){};
     void load(){};
 
@@ -122,18 +132,21 @@ public:
         switch (command) {
             case 1: {
                 board.drawBoard();
+                break;
             }
             case 2: {
                 board.listExisting();
+                break;
             }
             case 3: {
                 board.shapesPossible();
+                break;
             }
             case 4: {
                 cout << "Which figure do you want to add";
                 string shapeType;
                 cin >> shapeType;
-                Figure* figure;
+                Figure* figure = nullptr;
                 if (shapeType == "Circle") {
                     figure = new Circle;
                 }
@@ -146,23 +159,31 @@ public:
                 else if (shapeType == "Triangle") {
                     figure = new Triangle;
                 }
-                figure->setter();
-                board.add(figure);
+                if (figure != nullptr) {
+                    figure->setter();
+                    board.add(figure);
+                }
+                break;
             }
             case 5: {
                 board.undo();
+                break;
             }
             case 6: {
                 board.clear();
+                break;
             }
             case 7: {
                 board.save();
+                break;
             }
             case 8: {
                 board.load();
+                break;
             }
             default: {
                 cout << "Sorry, we don`t have such a command yet" << endl;
+                break;
             }
         }
     }
