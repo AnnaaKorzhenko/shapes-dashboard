@@ -4,23 +4,32 @@ using namespace std;
 
 class Figure {
 public:
+    virtual void setter();
     virtual void drawFigure(){};
     virtual void figureDetails(){};
+    virtual ~Figure();
 };
 
-class Board: Figure{
+class Board : Figure{
     const int width = 50;
     const int height = 30;
-    vector<Figure> figures;
+    vector<Figure*> figures;
+    std::vector<std::vector<char>> grid;
 public:
+    Board() : grid(height, std::vector<char>(width, ' ')) {}
     void drawBoard() {
         for(auto& figure : figures) {
-            figure.drawFigure();
+            for (auto& row : grid) {
+                for (char c : row) {
+                    std::cout << c;
+                }
+                std::cout << "\n";
+            }
         }
     };
     void listExisting() {
         for(auto& figure : figures) {
-            figure.figureDetails();
+            figure->figureDetails();
         }
     };
     void shapesPossible() {
@@ -30,7 +39,9 @@ public:
         cout << "Line - Length - Starting point coordinates" << endl;
 
     };
-    void add(){};
+    void add(Figure* figure) {
+        figures.push_back(figure);
+    };
     void undo(){};
     void clear(){};
     void save(){};
@@ -40,12 +51,56 @@ public:
 
 class Triangle : public Figure{};
 
-class Circle : public Figure{};
+class Circle : public Figure {
+    int radius, x, y;
+public:
+    void setter() override {
+        cout << "Enter radius" << endl;
+        cin >> radius;
+        cout << "Enter x-coordiante of the center" << endl;
+        cin >> x;
+        cout << "Enter y-coordiante of the center" << endl;
+        cin >> y;
+    }
+    void drawFigure() override{};
+    void figureDetails() override {
+        std::cout << "Circle: radius = " << radius << ", center at (" << x << ", " << y << ")\n";
+    }
 
-class Square : public Figure{};
+};
 
-class Line : public Square {
-    // just the same as square but with height = 0;
+class Square : public Figure {
+    int side, x, y;
+public:
+    void setter() override {
+        cout << "Enter side length" << endl;
+        cin >> side;
+        cout << "Enter x-coordiante of the left top vertex" << endl;
+        cin >> x;
+        cout << "Enter y-coordiante of the left top vertex" << endl;
+        cin >> y;
+    }
+    void drawFigure() override{};
+    void figureDetails() override {
+        std::cout << "Square: side = " << side << ", with the left top vertex at at (" << x << ", " << y << ")\n";
+    }
+};
+
+class Line : public Figure {
+    int length, x, y;
+public:
+    void setter() override {
+        cout << "Enter legth of the line" << endl;
+        cin >> length;
+        cout << "Enter x-coordiante of the strating point" << endl;
+        cin >> x;
+        cout << "Enter y-coordiante of the starting point" << endl;
+        cin >> y;
+    }
+    void drawFigure() override{};
+    void figureDetails() override {
+        std::cout << "Line: length = " << length << ", with the start at (" << x << ", " << y << ")\n";
+    }
 };
 
 class Communicator {
@@ -75,7 +130,24 @@ public:
                 board.shapesPossible();
             }
             case 4: {
-                board.add();
+                cout << "Which figure do you want to add";
+                string shapeType;
+                cin >> shapeType;
+                Figure* figure;
+                if (shapeType == "Circle") {
+                    figure = new Circle;
+                }
+                else if(shapeType == "Square") {
+                    figure = new Square;
+                }
+                else if (shapeType == "Line") {
+                    figure = new Line;
+                }
+                else if (shapeType == "Triangle") {
+                    figure = new Triangle;
+                }
+                figure->setter();
+                board.add(figure);
             }
             case 5: {
                 board.undo();
