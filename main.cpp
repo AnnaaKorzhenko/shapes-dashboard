@@ -1,23 +1,37 @@
 #include <iostream>
 #include <vector>
 using namespace std;
-
+class Board;
 class Figure {
 public:
     virtual void setter(){};
-    virtual void drawFigure(){};
+    virtual void drawFigure(Board& board){};
     virtual void figureDetails(){};
     virtual ~Figure(){};
 };
 
-class Board : Figure{
-    const int width = 50;
-    const int height = 30;
+class Board {
     vector<Figure*> figures;
-    std::vector<std::vector<char>> grid;
 public:
-    Board() : grid(height, std::vector<char>(width, ' ')) {}
+    int width = 10;
+    int height = 10;
+    vector<vector<char>> grid;
+    Board(){};
+    void setDimensions(int w, int h) {
+        if (w <= 0 || h <= 0) {
+            throw std::invalid_argument("Width or height out of range");
+        }
+        width = w;
+        height = h;
+        grid.resize(height, vector<char>(width, ' '));
+    }
+
     void drawBoard() {
+        grid.assign(height, vector<char>(width, ' '));
+        for (auto& figure : figures) {
+            figure->drawFigure(*this);
+        }
+
         for(auto& figure : figures) {
             for (auto& row : grid) {
                 for (char c : row) {
@@ -27,6 +41,7 @@ public:
             }
         }
     };
+
     void listExisting() {
         for(auto& figure : figures) {
             figure->figureDetails();
@@ -63,23 +78,47 @@ public:
 };
 
 class Triangle : public Figure {
-    int heihgt, x, y;
+    int height, x, y;
 public:
     void setter() override {
         cout << "Enter the triangle height" << endl;
-        cin >> heihgt;
+        cin >> height;
         cout << "Enter the x-coordinate of the left vertex" << endl;
         cin >> x;
         cout << "Enter the y-coordinate of the left vertex" << endl;
         cin >> y;
     }
-    void drawFigure() override {
-        // Implement drawing logic for Triangle
-    }
-    void figureDetails() override {
-        std::cout << "Triangle details\n";
+
+    void drawFigure(Board& board) override{
+        if (height <= 0) return;
+
+        for (int i = 0; i < height; ++i) {
+            int leftMost = x - i;
+            int rightMost = x + i;
+            int posY = y + i;
+
+            if (posY >= 0 && posY < board.height) {
+                if (leftMost >= 0 && leftMost < board.width) {
+                    board.grid[posY][leftMost] = '*';
+                }
+                if (rightMost >= 0 && rightMost < board.width && leftMost != rightMost) {
+                    board.grid[posY][rightMost] = '*';
+                }
+            }
+        }
+
+        for (int j = 0; j < 2 * height - 1; ++j) {
+            int baseX = x - height + 1 + j;
+            int baseY = y + height - 1;
+            if (baseX >= 0 && baseX < board.width && baseY >= 0 && baseY < board.height) {
+                board.grid[baseY][baseX] = '*';
+            }
+        }
     }
 
+    void figureDetails() override {
+        std::cout << "Triangle: height = " << height << ", left vertex at (" << x << ", " << y << ")\n";
+    }
     ~Triangle() override {}
 };
 
@@ -94,7 +133,7 @@ public:
         cout << "Enter y-coordiante of the center" << endl;
         cin >> y;
     }
-    void drawFigure() override{};
+    void drawFigure(Board& board) override{};
     void figureDetails() override {
         std::cout << "Circle: radius = " << radius << ", center at (" << x << ", " << y << ")\n";
     }
@@ -112,7 +151,7 @@ public:
         cout << "Enter y-coordiante of the left top vertex" << endl;
         cin >> y;
     }
-    void drawFigure() override{};
+    void drawFigure(Board& board) override{};
     void figureDetails() override {
         std::cout << "Square: side = " << side << ", with the left top vertex at at (" << x << ", " << y << ")\n";
     }
@@ -130,7 +169,7 @@ public:
         cout << "Enter y-coordiante of the starting point" << endl;
         cin >> y;
     }
-    void drawFigure() override{};
+    void drawFigure(Board& board) override{};
     void figureDetails() override {
         std::cout << "Line: length = " << length << ", with the start at (" << x << ", " << y << ")\n";
     }
@@ -242,6 +281,7 @@ public:
 
 int main() {
     Board board;
+    board.setDimensions(20, 20);
     Communicator communicator;
     communicator.executeCommand(board);
 }
