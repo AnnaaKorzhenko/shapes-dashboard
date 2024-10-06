@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 using namespace std;
 class Board;
 class Figure {
@@ -27,18 +28,16 @@ public:
     }
 
     void drawBoard() {
-        grid.assign(height, vector<char>(width, ' '));
+        // grid.assign(height, vector<char>(width, ' '));
         for (auto& figure : figures) {
             figure->drawFigure(*this);
         }
 
-        for(auto& figure : figures) {
-            for (auto& row : grid) {
-                for (char c : row) {
-                    std::cout << c;
-                }
-                std::cout << "\n";
+        for(auto& row : grid) {
+            for (char c : row) {
+                cout << c;
             }
+            cout << "\n";
         }
     };
 
@@ -133,7 +132,17 @@ public:
         cout << "Enter y-coordiante of the center" << endl;
         cin >> y;
     }
-    void drawFigure(Board& board) override{};
+    void drawFigure(Board& board) override {
+        if (radius <= 0) return;
+
+        for (int i = 0; i < board.height; ++i) {
+            for (int j = 0; j < board.width; ++j) {
+                if (pow(j - x, 2) + pow(i - y, 2) == pow(radius, 2)) {
+                    board.grid[i][j] = '*';
+                }
+            }
+        }
+    };
     void figureDetails() override {
         std::cout << "Circle: radius = " << radius << ", center at (" << x << ", " << y << ")\n";
     }
@@ -151,7 +160,32 @@ public:
         cout << "Enter y-coordiante of the left top vertex" << endl;
         cin >> y;
     }
-    void drawFigure(Board& board) override{};
+    void drawFigure(Board& board) override {
+        if (side <= 0) return;
+        for (int j = x; j < x + side; ++j) {
+            if (j >= 0 && j < board.width && y >= 0 && y < board.height) {
+                board.grid[y][j] = '*';
+            }
+        }
+
+        for (int j = x; j < x + side; ++j) {
+            if (j >= 0 && j < board.width && y + side - 1 >= 0 && y + side - 1 < board.height) {
+                board.grid[y + side - 1][j] = '*';
+            }
+        }
+
+        for (int i = y; i < y + side; ++i) {
+            if (x >= 0 && x < board.width && i >= 0 && i < board.height) {
+                board.grid[i][x] = '*';
+            }
+        }
+
+        for (int i = y; i < y + side; ++i) {
+            if (x + side - 1 >= 0 && x + side - 1 < board.width && i >= 0 && i < board.height) {
+                board.grid[i][x + side - 1] = '*';
+            }
+        }
+    };
     void figureDetails() override {
         std::cout << "Square: side = " << side << ", with the left top vertex at at (" << x << ", " << y << ")\n";
     }
@@ -169,7 +203,16 @@ public:
         cout << "Enter y-coordiante of the starting point" << endl;
         cin >> y;
     }
-    void drawFigure(Board& board) override{};
+    void drawFigure(Board& board) override {
+        if (length <= 0) return;
+
+        for (int j = 0; j < length; ++j) {
+            int posX = x + j;
+            if (posX >= 0 && posX < board.width && y >= 0 && y < board.height) {
+                board.grid[y][posX] = '*';
+            }
+        }
+    };
     void figureDetails() override {
         std::cout << "Line: length = " << length << ", with the start at (" << x << ", " << y << ")\n";
     }
