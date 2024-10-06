@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <cmath>
 using namespace std;
@@ -8,6 +9,7 @@ public:
     virtual void setter(){};
     virtual void drawFigure(Board& board){};
     virtual void figureDetails(){};
+    virtual void loadDetails(ifstream& file){};
     virtual ~Figure(){};
 };
 
@@ -71,8 +73,8 @@ public:
         }
         figures.clear();
     };
-    void save(){};
-    void load(){};
+    void save(const string& filename);
+    void load(const string& filename);
 
 };
 
@@ -118,6 +120,9 @@ public:
     void figureDetails() override {
         std::cout << "Triangle: height = " << height << ", left vertex at (" << x << ", " << y << ")\n";
     }
+    void loadDetails(ifstream& file) override {
+        file >> height >> x >> y;
+    }
     ~Triangle() override {}
 };
 
@@ -145,6 +150,9 @@ public:
     };
     void figureDetails() override {
         std::cout << "Circle: radius = " << radius << ", center at (" << x << ", " << y << ")\n";
+    }
+    void loadDetails(ifstream& file) override {
+        file >> radius >> x >> y;
     }
     ~Circle() override{};
 };
@@ -189,6 +197,9 @@ public:
     void figureDetails() override {
         std::cout << "Square: side = " << side << ", with the left top vertex at at (" << x << ", " << y << ")\n";
     }
+    void loadDetails(ifstream& file) override {
+        file >> side >> x >> y;
+    }
     ~Square() override{};
 };
 
@@ -216,8 +227,80 @@ public:
     void figureDetails() override {
         std::cout << "Line: length = " << length << ", with the start at (" << x << ", " << y << ")\n";
     }
+    void loadDetails(ifstream& file) override {
+        file >> length >> x >> y;
+    }
     ~Line() override{};
 };
+
+void Board::save(const string& filename) {
+    ofstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error: Could not open file for saving." << endl;
+        return;
+    }
+
+    file << width << " " << height << "\n";
+
+    for (auto& row : grid) {
+        for (auto& cell : row) {
+            file << cell;
+        }
+        file << "\n";
+    }
+
+    file << figures.size() << "\n";
+    for (const auto& figure : figures) {
+        figure->figureDetails();
+    }
+
+    file.close();
+}
+
+void Board::load(const string& filename) {
+    ifstream file(filename);
+
+    if (!file.is_open()) {
+        cerr << "Error: Could not open file for loading." << endl;
+        return;
+    }
+
+    file >> width >> height;
+    grid.clear();
+    grid.resize(height, vector<char>(width, ' '));
+
+    string line;
+    getline(file, line);
+    for (int i = 0; i < height; ++i) {
+        getline(file, line);
+        for (int j = 0; j < width; ++j) {
+            grid[i][j] = line[j];
+        }
+    }
+
+    clear();
+    int numFigures;
+    file >> numFigures;
+    for (int i = 0; i < numFigures; ++i) {
+        string figureType;
+        file >> figureType;
+
+        Figure* figure = nullptr;
+        if (figureType == "Triangle") {
+            figure = new Triangle();
+        } else if (figureType == "Circle") {
+            figure = new Circle();
+        }
+
+        if (figure != nullptr) {
+            figure->loadDetails(file);
+            add(figure);
+        }
+    }
+
+    file.close();
+}
+
 
 class Communicator {
     int input = 0;
@@ -302,13 +385,19 @@ public:
                     break;
                 }
                 case 7: {
-                    board.save();
+                    string filename;
+                    cout << "Enter a file name to save to" << endl;
+                    cin >> filename;
+                    board.save(filename);
                     cout << "Do you want to continue?" << endl;
                     cin >> tocontinue;
                     break;
                 }
                 case 8: {
-                    board.load();
+                    string filename;
+                    cout << "Enter a file name to load from" << endl;
+                    cin >> filename;
+                    board.load(filename);
                     cout << "Do you want to continue?" << endl;
                     cin >> tocontinue;
                     break;
