@@ -4,10 +4,10 @@ using namespace std;
 
 class Figure {
 public:
-    virtual void setter();
+    virtual void setter(){};
     virtual void drawFigure(){};
     virtual void figureDetails(){};
-    virtual ~Figure();
+    virtual ~Figure(){};
 };
 
 class Board : Figure{
@@ -30,6 +30,9 @@ public:
     void listExisting() {
         for(auto& figure : figures) {
             figure->figureDetails();
+        }
+        if (figures.empty()) {
+            cout << "The board doesn't have any figues" << endl;
         }
     };
     void shapesPossible() {
@@ -59,7 +62,26 @@ public:
 
 };
 
-class Triangle : public Figure{};
+class Triangle : public Figure {
+    int heihgt, x, y;
+public:
+    void setter() override {
+        cout << "Enter the triangle height" << endl;
+        cin >> heihgt;
+        cout << "Enter the x-coordinate of the left vertex" << endl;
+        cin >> x;
+        cout << "Enter the y-coordinate of the left vertex" << endl;
+        cin >> y;
+    }
+    void drawFigure() override {
+        // Implement drawing logic for Triangle
+    }
+    void figureDetails() override {
+        std::cout << "Triangle details\n";
+    }
+
+    ~Triangle() override {}
+};
 
 class Circle : public Figure {
     int radius, x, y;
@@ -76,7 +98,7 @@ public:
     void figureDetails() override {
         std::cout << "Circle: radius = " << radius << ", center at (" << x << ", " << y << ")\n";
     }
-
+    ~Circle() override{};
 };
 
 class Square : public Figure {
@@ -94,6 +116,7 @@ public:
     void figureDetails() override {
         std::cout << "Square: side = " << side << ", with the left top vertex at at (" << x << ", " << y << ")\n";
     }
+    ~Square() override{};
 };
 
 class Line : public Figure {
@@ -111,6 +134,7 @@ public:
     void figureDetails() override {
         std::cout << "Line: length = " << length << ", with the start at (" << x << ", " << y << ")\n";
     }
+    ~Line() override{};
 };
 
 class Communicator {
@@ -128,62 +152,89 @@ public:
         cin >> input;
         return input;
     };
-    void executeCommand( int command, Board board) {
-        switch (command) {
-            case 1: {
-                board.drawBoard();
-                break;
-            }
-            case 2: {
-                board.listExisting();
-                break;
-            }
-            case 3: {
-                board.shapesPossible();
-                break;
-            }
-            case 4: {
-                cout << "Which figure do you want to add";
-                string shapeType;
-                cin >> shapeType;
-                Figure* figure = nullptr;
-                if (shapeType == "Circle") {
-                    figure = new Circle;
+    void executeCommand(Board board) {
+        string tocontinue = "y";
+        while (tocontinue == "y") {
+            int command = getCommand();
+            switch (command) {
+                case 1: {
+                    board.drawBoard();
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
+                    break;
                 }
-                else if(shapeType == "Square") {
-                    figure = new Square;
+                case 2: {
+                    board.listExisting();
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
+                    break;
                 }
-                else if (shapeType == "Line") {
-                    figure = new Line;
+                case 3: {
+                    board.shapesPossible();
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
+                    break;
                 }
-                else if (shapeType == "Triangle") {
-                    figure = new Triangle;
+                case 4: {
+                    cout << "Which figure do you want to add" << endl;
+                    string shapeType;
+                    cin >> shapeType;
+                    Figure* figure = nullptr;
+                    if (shapeType == "Circle") {
+                        figure = new Circle;
+                    }
+                    else if(shapeType == "Square") {
+                        figure = new Square;
+                    }
+                    else if (shapeType == "Line") {
+                        figure = new Line;
+                    }
+                    else if (shapeType == "Triangle") {
+                        figure = new Triangle;
+                    }
+                    else {
+                        cout << "We don't support such a figure type yet :(" << endl;
+                        break;
+                    }
+                    if (figure != nullptr) {
+                        figure->setter();
+                        board.add(figure);
+                        cout << "The figure has been added" << endl;
+                    }
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
+                    break;
                 }
-                if (figure != nullptr) {
-                    figure->setter();
-                    board.add(figure);
+                case 5: {
+                    board.undo();
+                    cout << "Last figure has been removed" << endl;
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
+                    break;
                 }
-                break;
-            }
-            case 5: {
-                board.undo();
-                break;
-            }
-            case 6: {
-                board.clear();
-                break;
-            }
-            case 7: {
-                board.save();
-                break;
-            }
-            case 8: {
-                board.load();
-                break;
-            }
-            default: {
-                cout << "Sorry, we don`t have such a command yet" << endl;
-                break;
+                case 6: {
+                    board.clear();
+                    cout << "The board has been cleaned" << endl;
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
+                    break;
+                }
+                case 7: {
+                    board.save();
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
+                    break;
+                }
+                case 8: {
+                    board.load();
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
+                    break;
+                }
+                default: {
+                    tocontinue = "n";
+                    cout << "Sorry, we don`t have such a command yet" << endl;
+                }
             }
         }
     }
@@ -192,7 +243,5 @@ public:
 int main() {
     Board board;
     Communicator communicator;
-    int command = communicator.getCommand();
-    communicator.executeCommand(command, board);
-
+    communicator.executeCommand(board);
 }
