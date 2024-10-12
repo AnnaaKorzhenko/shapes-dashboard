@@ -5,7 +5,14 @@
 using namespace std;
 class Board;
 class Figure {
+    int id;
 public:
+    int getId() {
+        return id;
+    }
+    void setId(int theId) {
+        id = theId;
+    }
     virtual void setter(){};
     virtual void drawFigure(Board& board){};
     virtual void figureDetails(){};
@@ -30,7 +37,7 @@ public:
     }
 
     void drawBoard() {
-        // grid.assign(height, vector<char>(width, ' '));
+        grid.assign(height, vector<char>(width, ' '));
         for (auto& figure : figures) {
             figure->drawFigure(*this);
         }
@@ -52,19 +59,28 @@ public:
         }
     };
     void shapesPossible() {
-        cout << "Circle - Radius - Coordinates of the center" << endl;
-        cout << "Square - Side length - Left Top corner coordinates" << endl;
-        cout << "Triangle - Height - Left vertex coordinates" << endl;
-        cout << "Line - Length - Starting point coordinates" << endl;
+        cout << "Circle - Filled or frame - Color - Radius - Coordinates of the center" << endl;
+        cout << "Square - Filled or frame - Color - Side length - Left Top corner coordinates" << endl;
+        cout << "Triangle - Filled or frame - Color - Height - Left vertex coordinates" << endl;
+        cout << "Line - Filled or frame - Color - Length - Starting point coordinates" << endl;
 
     };
     void add(Figure* figure) {
         figures.push_back(figure);
     };
-    void undo() {
+    void undo(int id) {
         if (!figures.empty()) {
-            delete figures.back();
-            figures.pop_back();
+            if(figures.at(id)) {
+                Figure* figure = figures.at(id);
+                delete figures.at(figure->getId());
+                figures.erase(figures.begin()+figure->getId()+1);
+            }
+            else {
+                cout << "Remove failed :(" << endl;
+            }
+        }
+        else {
+            cout << "There are no any figures to remove at all" << endl;
         }
     };
     void clear() {
@@ -310,7 +326,7 @@ public:
         cout << "To print a list of existing figures enter 2" << endl;
         cout << "To print info about available shapes enter 3" << endl;
         cout << "To add a new figure enter 4" << endl;
-        cout << "To remove the last shape added enter 5" << endl;
+        cout << "To remove a certain figure enter 5" << endl;
         cout << "To clear the whole board enter 6" << endl;
         cout << "To save the board to the file enter 7" << endl;
         cout << "To load the board from the file enter 8" << endl;
@@ -371,8 +387,11 @@ public:
                     break;
                 }
                 case 5: {
-                    board.undo();
-                    cout << "Last figure has been removed" << endl;
+                    int id;
+                    cout << "Enter ID of the figure to remove" << endl;
+                    cin >> id;
+                    board.undo(id);
+                    cout << "Figure with id " << id << " has been removed" << endl;
                     cout << "Do you want to continue?" << endl;
                     cin >> tocontinue;
                     break;
