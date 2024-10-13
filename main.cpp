@@ -5,8 +5,11 @@
 using namespace std;
 class Board;
 class Figure {
+protected:
     int id;
 public:
+    string filling;
+    char color;
     int getId() {
         return id;
     }
@@ -66,6 +69,13 @@ public:
 
     };
     void add(Figure* figure) {
+        figure->setter();
+        if (figures.size() == 0) {
+            figure->setId(1);
+        }
+        else {
+            figure->setId(figures.size()+1);
+        }
         figures.push_back(figure);
     };
     void undo(int id) {
@@ -98,6 +108,11 @@ class Triangle : public Figure {
     int height, x, y;
 public:
     void setter() override {
+        cout << "Do you want the triangle filled or just frame? fi/fr" << endl;
+        cin >> filling;
+        cout << "Which color do you want it to be?" << endl;
+        cout << "r - red\ng - green\nb - blue\ny - yellow\no - orange\np - pink" << endl;
+        cin >> color;
         cout << "Enter the triangle height" << endl;
         cin >> height;
         cout << "Enter the x-coordinate of the left vertex" << endl;
@@ -146,6 +161,11 @@ class Circle : public Figure {
     int radius, x, y;
 public:
     void setter() override {
+        cout << "Do you want the circle filled or just frame? fi/fr" << endl;
+        cin >> filling;
+        cout << "Which color do you want it to be?" << endl;
+        cout << "r - red\ng - green\nb - blue\ny - yellow\no - orange\np - pink" << endl;
+        cin >> color;
         cout << "Enter radius" << endl;
         cin >> radius;
         cout << "Enter x-coordiante of the center" << endl;
@@ -177,6 +197,11 @@ class Square : public Figure {
     int side, x, y;
 public:
     void setter() override {
+        cout << "Do you want the square filled or just frame? fi/fr" << endl;
+        cin >> filling;
+        cout << "Which color do you want it to be?" << endl;
+        cout << "r - red\ng - green\nb - blue\ny - yellow\no - orange\np - pink" << endl;
+        cin >> color;
         cout << "Enter side length" << endl;
         cin >> side;
         cout << "Enter x-coordiante of the left top vertex" << endl;
@@ -223,6 +248,10 @@ class Line : public Figure {
     int length, x, y;
 public:
     void setter() override {
+        filling = "fi";
+        cout << "Which color do you want the line to be?" << endl;
+        cout << "r - red\ng - green\nb - blue\ny - yellow\no - orange\np - pink" << endl;
+        cin >> color;
         cout << "Enter legth of the line" << endl;
         cin >> length;
         cout << "Enter x-coordiante of the strating point" << endl;
@@ -378,7 +407,6 @@ public:
                         break;
                     }
                     if (figure != nullptr) {
-                        figure->setter();
                         board.add(figure);
                         cout << "The figure has been added" << endl;
                     }
