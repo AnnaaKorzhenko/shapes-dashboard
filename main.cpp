@@ -149,7 +149,8 @@ public:
     }
 
     void figureDetails() override {
-        std::cout << "Triangle: height = " << height << ", left vertex at (" << x << ", " << y << ")\n";
+        cout << "Triangle: height = " << height << ", left vertex at (" << x << ", " << y << ")\n";
+        cout << "Filling: " << filling << ", color: " << color;
     }
     void loadDetails(ifstream& file) override {
         file >> height >> x >> y;
@@ -186,6 +187,7 @@ public:
     };
     void figureDetails() override {
         std::cout << "Circle: radius = " << radius << ", center at (" << x << ", " << y << ")\n";
+        cout << "Filling: " << filling << ", color: " << color;
     }
     void loadDetails(ifstream& file) override {
         file >> radius >> x >> y;
@@ -237,6 +239,7 @@ public:
     };
     void figureDetails() override {
         std::cout << "Square: side = " << side << ", with the left top vertex at at (" << x << ", " << y << ")\n";
+        cout << "Filling: " << filling << ", color: " << color;
     }
     void loadDetails(ifstream& file) override {
         file >> side >> x >> y;
@@ -271,6 +274,7 @@ public:
     };
     void figureDetails() override {
         std::cout << "Line: length = " << length << ", with the start at (" << x << ", " << y << ")\n";
+        cout << "Color: " << color;
     }
     void loadDetails(ifstream& file) override {
         file >> length >> x >> y;
