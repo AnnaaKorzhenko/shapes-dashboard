@@ -9,7 +9,7 @@ protected:
     int id;
 public:
     string filling;
-    char color;
+    char color = '*';
     int getId() {
         return id;
     }
@@ -78,6 +78,14 @@ public:
         }
         figures.push_back(figure);
     };
+    Figure* select() {
+        int id;
+        cout << "Enter ID of the figure to select" << endl;
+        cin >> id;
+    };
+    void edit() {};
+    void paint(){};
+    void move(){};
     void undo(int id) {
         if (!figures.empty()) {
             if(figures.at(id)) {
@@ -131,10 +139,10 @@ public:
 
             if (posY >= 0 && posY < board.height) {
                 if (leftMost >= 0 && leftMost < board.width) {
-                    board.grid[posY][leftMost] = '*';
+                    board.grid[posY][leftMost] = color;
                 }
                 if (rightMost >= 0 && rightMost < board.width && leftMost != rightMost) {
-                    board.grid[posY][rightMost] = '*';
+                    board.grid[posY][rightMost] = color;
                 }
             }
         }
@@ -143,7 +151,7 @@ public:
             int baseX = x - height + 1 + j;
             int baseY = y + height - 1;
             if (baseX >= 0 && baseX < board.width && baseY >= 0 && baseY < board.height) {
-                board.grid[baseY][baseX] = '*';
+                board.grid[baseY][baseX] = color;
             }
         }
     }
@@ -180,7 +188,7 @@ public:
         for (int i = 0; i < board.height; ++i) {
             for (int j = 0; j < board.width; ++j) {
                 if (pow(j - x, 2) + pow(i - y, 2) == pow(radius, 2)) {
-                    board.grid[i][j] = '*';
+                    board.grid[i][j] = color;
                 }
             }
         }
@@ -215,25 +223,25 @@ public:
         if (side <= 0) return;
         for (int j = x; j < x + side; ++j) {
             if (j >= 0 && j < board.width && y >= 0 && y < board.height) {
-                board.grid[y][j] = '*';
+                board.grid[y][j] = color;
             }
         }
 
         for (int j = x; j < x + side; ++j) {
             if (j >= 0 && j < board.width && y + side - 1 >= 0 && y + side - 1 < board.height) {
-                board.grid[y + side - 1][j] = '*';
+                board.grid[y + side - 1][j] = color;
             }
         }
 
         for (int i = y; i < y + side; ++i) {
             if (x >= 0 && x < board.width && i >= 0 && i < board.height) {
-                board.grid[i][x] = '*';
+                board.grid[i][x] = color;
             }
         }
 
         for (int i = y; i < y + side; ++i) {
             if (x + side - 1 >= 0 && x + side - 1 < board.width && i >= 0 && i < board.height) {
-                board.grid[i][x + side - 1] = '*';
+                board.grid[i][x + side - 1] = color;
             }
         }
     };
@@ -268,7 +276,7 @@ public:
         for (int j = 0; j < length; ++j) {
             int posX = x + j;
             if (posX >= 0 && posX < board.width && y >= 0 && y < board.height) {
-                board.grid[y][posX] = '*';
+                board.grid[y][posX] = color;
             }
         }
     };
@@ -353,16 +361,21 @@ void Board::load(const string& filename) {
 
 class Communicator {
     int input = 0;
+    Figure* selected = nullptr;
 public:
     int getCommand() {
         cout << "To draw board enter 1" << endl;
         cout << "To print a list of existing figures enter 2" << endl;
         cout << "To print info about available shapes enter 3" << endl;
         cout << "To add a new figure enter 4" << endl;
-        cout << "To remove a certain figure enter 5" << endl;
-        cout << "To clear the whole board enter 6" << endl;
-        cout << "To save the board to the file enter 7" << endl;
-        cout << "To load the board from the file enter 8" << endl;
+        cout << "To select a figure enter 5" << endl;
+        cout << "To remove the selected figure enter 6" << endl;
+        cout << "To edit the selected figure enter 7" << endl;
+        cout << "To paint the selected figure enter 8" << endl;
+        cout << "To move the selected figure enter 9" << endl;
+        cout << "To clear the whole board enter 10" << endl;
+        cout << "To save the board to the file enter 11" << endl;
+        cout << "To load the board from the file enter 12" << endl;
         cin >> input;
         return input;
     };
@@ -419,23 +432,39 @@ public:
                     break;
                 }
                 case 5: {
-                    int id;
-                    cout << "Enter ID of the figure to remove" << endl;
-                    cin >> id;
-                    board.undo(id);
-                    cout << "Figure with id " << id << " has been removed" << endl;
+                    selected = board.select();
+                    break;
+                }
+                case 6: {
+                    if(selected!=nullptr) {
+                        board.undo(selected->getId());
+                        cout << "Selected figure has been removed" << endl;
+                    }
+                    else {
+                        cout << "You have not selected any figure. Please? select and try again" << endl;
+                    }
                     cout << "Do you want to continue?" << endl;
                     cin >> tocontinue;
                     break;
                 }
-                case 6: {
+                case 7: {
+                    board.edit();
+                    break;
+                }
+                case 8: {
+                    board.paint();
+                }
+                case 9: {
+                    board.move();
+                }
+                case 10: {
                     board.clear();
                     cout << "The board has been cleaned" << endl;
                     cout << "Do you want to continue?" << endl;
                     cin >> tocontinue;
                     break;
                 }
-                case 7: {
+                case 11: {
                     string filename;
                     cout << "Enter a file name to save to" << endl;
                     cin >> filename;
@@ -444,7 +473,7 @@ public:
                     cin >> tocontinue;
                     break;
                 }
-                case 8: {
+                case 12: {
                     string filename;
                     cout << "Enter a file name to load from" << endl;
                     cin >> filename;
