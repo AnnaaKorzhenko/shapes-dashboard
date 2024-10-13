@@ -17,6 +17,7 @@ public:
         id = theId;
     }
     virtual void setter(){};
+    virtual void editor(string param){};
     virtual void drawFigure(Board& board){};
     virtual void figureDetails(){};
     virtual void loadDetails(ifstream& file){};
@@ -82,16 +83,54 @@ public:
         int id;
         cout << "Enter ID of the figure to select" << endl;
         cin >> id;
+        if (figures.at(id-1)) {
+            cout << "Figure selected" << endl;
+            return figures.at(id-1);
+        }
+        else {
+            cout << "There is no figure with such an ID" << endl;
+            exit;
+        }
     };
-    void edit() {};
-    void paint(){};
-    void move(){};
+    void edit(int id) {
+        if (!figures.empty()) {
+            if(figures.at(id-1)) {
+                Figure* figure = figures.at(id-1);
+                figure->editor("length");
+            }
+            else {
+                cout << "Edit failed :(" << endl;
+            }
+        }
+    };
+    void paint(int id) {
+        if (!figures.empty()) {
+            if(figures.at(id-1)) {
+                Figure* figure = figures.at(id-1);
+                figure->editor("color");
+            }
+            else {
+                cout << "Edit failed :(" << endl;
+            }
+        }
+    };
+    void move(int id) {
+        if (!figures.empty()) {
+            if(figures.at(id-1)) {
+                Figure* figure = figures.at(id-1);
+                figure->editor("coordinates");
+            }
+            else {
+                cout << "Edit failed :(" << endl;
+            }
+        }
+    };
     void undo(int id) {
         if (!figures.empty()) {
-            if(figures.at(id)) {
-                Figure* figure = figures.at(id);
-                delete figures.at(figure->getId());
-                figures.erase(figures.begin()+figure->getId()+1);
+            if(figures.at(id-1)) {
+                Figure* figure = figures.at(id-1);
+                delete figures.at(id-1);
+                figures.erase(figures.begin()+id-1);
             }
             else {
                 cout << "Remove failed :(" << endl;
@@ -127,6 +166,28 @@ public:
         cin >> x;
         cout << "Enter the y-coordinate of the top vertex" << endl;
         cin >> y;
+    }
+
+    void editor(string param) override {
+        if (param == "length") {
+            cout << "Enter the new triangle height" << endl;
+            cin >> height;
+            cout << "Selected figure has been edited" << endl;
+        }
+        else if (param == "coordinates") {
+            cout << "Enter the x-coordinate of the top vertex" << endl;
+            cin >> x;
+            cout << "Enter the y-coordinate of the top vertex" << endl;
+            cin >> y;
+            cout << "Selected figure has been edited" << endl;
+        }
+        else if(param == "color") {
+            cout << "Enter the color to paint triangle to" << endl;
+            cin >> color;
+        }
+        else {
+            cout << "Sorry, we don`t have such a param" << endl;
+        }
     }
 
     void drawFigure(Board& board) override{
@@ -172,7 +233,8 @@ public:
 
     void figureDetails() override {
         cout << "Triangle: height = " << height << ", top vertex at (" << x << ", " << y << ")\n";
-        cout << "Filling: " << filling << ", color: " << color;
+        cout << "Filling: " << filling << ", color: " << color << endl;
+        cout << "ID: " << id << endl;
     }
     void loadDetails(ifstream& file) override {
         file >> height >> x >> y;
@@ -196,6 +258,27 @@ public:
         cout << "Enter y-coordiante of the center" << endl;
         cin >> y;
     }
+    void editor(string param) override {
+        if (param == "length") {
+            cout << "Enter the new radius" << endl;
+            cin >> radius;
+            cout << "Selected figure has been edited" << endl;
+        }
+        else if (param == "coordinates") {
+            cout << "Enter the x-coordinate of the top vertex" << endl;
+            cin >> x;
+            cout << "Enter the y-coordinate of the top vertex" << endl;
+            cin >> y;
+            cout << "Selected figure has been edited" << endl;
+        }
+        else if(param == "color") {
+            cout << "Enter the color to paint circle to" << endl;
+            cin >> color;
+        }
+        else {
+            cout << "Sorry, we don`t have such a param" << endl;
+        }
+    }
     void drawFigure(Board& board) override {
         if (radius <= 0) return;
 
@@ -216,7 +299,8 @@ public:
     };
     void figureDetails() override {
         std::cout << "Circle: radius = " << radius << ", center at (" << x << ", " << y << ")\n";
-        cout << "Filling: " << filling << ", color: " << color;
+        cout << "Filling: " << filling << ", color: " << color << endl;
+        cout << "ID: " << id << endl;
     }
     void loadDetails(ifstream& file) override {
         file >> radius >> x >> y;
@@ -239,6 +323,27 @@ public:
         cin >> x;
         cout << "Enter y-coordiante of the left top vertex" << endl;
         cin >> y;
+    }
+    void editor(string param) override {
+        if (param == "length") {
+            cout << "Enter the new square side" << endl;
+            cin >> side;
+            cout << "Selected figure has been edited" << endl;
+        }
+        else if (param == "coordinates") {
+            cout << "Enter the x-coordinate of the top vertex" << endl;
+            cin >> x;
+            cout << "Enter the y-coordinate of the top vertex" << endl;
+            cin >> y;
+            cout << "Selected figure has been edited" << endl;
+        }
+        else if(param == "color") {
+            cout << "Enter the color to paint sqaure to" << endl;
+            cin >> color;
+        }
+        else {
+            cout << "Sorry, we don`t have such a param" << endl;
+        }
     }
     void drawFigure(Board& board) override {
         if (side <= 0) return;
@@ -278,7 +383,8 @@ public:
     };
     void figureDetails() override {
         std::cout << "Square: side = " << side << ", with the left top vertex at at (" << x << ", " << y << ")\n";
-        cout << "Filling: " << filling << ", color: " << color;
+        cout << "Filling: " << filling << ", color: " << color << endl;
+        cout << "ID: " << id << endl;
     }
     void loadDetails(ifstream& file) override {
         file >> side >> x >> y;
@@ -301,6 +407,27 @@ public:
         cout << "Enter y-coordiante of the starting point" << endl;
         cin >> y;
     }
+    void editor(string param) override {
+        if (param == "length") {
+            cout << "Enter the new line length" << endl;
+            cin >> length;
+            cout << "Selected figure has been edited" << endl;
+        }
+        else if (param == "coordinates") {
+            cout << "Enter the x-coordinate of the top vertex" << endl;
+            cin >> x;
+            cout << "Enter the y-coordinate of the top vertex" << endl;
+            cin >> y;
+            cout << "Selected figure has been edited" << endl;
+        }
+        else if(param == "color") {
+            cout << "Enter the color to paint line to" << endl;
+            cin >> color;
+        }
+        else {
+            cout << "Sorry, we don`t have such a param" << endl;
+        }
+    }
     void drawFigure(Board& board) override {
         if (length <= 0) return;
 
@@ -313,7 +440,8 @@ public:
     };
     void figureDetails() override {
         std::cout << "Line: length = " << length << ", with the start at (" << x << ", " << y << ")\n";
-        cout << "Color: " << color;
+        cout << "Color: " << color << endl;
+        cout << "ID: " << id << endl;
     }
     void loadDetails(ifstream& file) override {
         file >> length >> x >> y;
@@ -464,6 +592,8 @@ public:
                 }
                 case 5: {
                     selected = board.select();
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
                     break;
                 }
                 case 6: {
@@ -472,21 +602,44 @@ public:
                         cout << "Selected figure has been removed" << endl;
                     }
                     else {
-                        cout << "You have not selected any figure. Please? select and try again" << endl;
+                        cout << "You have not selected any figure. Please, select and try again" << endl;
                     }
                     cout << "Do you want to continue?" << endl;
                     cin >> tocontinue;
                     break;
                 }
                 case 7: {
-                    board.edit();
+                    if(selected!=nullptr) {
+                        board.edit(selected->getId());
+                    }
+                    else {
+                        cout << "You have not selected any figure. Please, select and try again" << endl;
+                    }
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
                     break;
                 }
                 case 8: {
-                    board.paint();
+                    if(selected!=nullptr) {
+                        board.paint(selected->getId());
+                    }
+                    else {
+                        cout << "You have not selected any figure. Please, select and try again" << endl;
+                    }
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
+                    break;
                 }
                 case 9: {
-                    board.move();
+                    if(selected!=nullptr) {
+                        board.move(selected->getId());
+                    }
+                    else {
+                        cout << "You have not selected any figure. Please, select and try again" << endl;
+                    }
+                    cout << "Do you want to continue?" << endl;
+                    cin >> tocontinue;
+                    break;
                 }
                 case 10: {
                     board.clear();
@@ -528,9 +681,3 @@ int main() {
     Communicator communicator;
     communicator.executeCommand(board);
 }
-
-// edit
-// paint
-// move
-// check the save and load, need to change them
-// check all the constarints and just add conditions and additional elses for handling unexpected behaviour
