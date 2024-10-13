@@ -20,6 +20,7 @@ public:
     virtual void editor(string param){};
     virtual void drawFigure(Board& board){};
     virtual void figureDetails(){};
+    virtual void saveDetails(ofstream& file){};
     virtual void loadDetails(ifstream& file){};
     virtual ~Figure(){};
 };
@@ -236,8 +237,11 @@ public:
         cout << "Filling: " << filling << ", color: " << color << endl;
         cout << "ID: " << id << endl;
     }
+    void saveDetails(ofstream& file) override {
+        file << "Traingle" << height << x << y << filling << color << id << endl;
+    }
     void loadDetails(ifstream& file) override {
-        file >> height >> x >> y;
+        file >> height >> x >> y >> filling >> color >> id;
     }
     ~Triangle() override {}
 };
@@ -302,8 +306,11 @@ public:
         cout << "Filling: " << filling << ", color: " << color << endl;
         cout << "ID: " << id << endl;
     }
+    void saveDetails(ofstream& file) override {
+        file << "Circle" << radius << x << y << filling << color << id << endl;
+    }
     void loadDetails(ifstream& file) override {
-        file >> radius >> x >> y;
+        file >> radius >> x >> y >> filling >> color >> id;
     }
     ~Circle() override{};
 };
@@ -386,8 +393,11 @@ public:
         cout << "Filling: " << filling << ", color: " << color << endl;
         cout << "ID: " << id << endl;
     }
+    void saveDetails(ofstream& file) override {
+        file << "Square" << side << x << y << filling << color << id << endl;
+    }
     void loadDetails(ifstream& file) override {
-        file >> side >> x >> y;
+        file >> side >> x >> y >> filling >> color >> id;
     }
     ~Square() override{};
 };
@@ -443,8 +453,11 @@ public:
         cout << "Color: " << color << endl;
         cout << "ID: " << id << endl;
     }
+    void saveDetails(ofstream& file) override {
+        file << "Line" << length << x << y << filling << color << id << endl;
+    }
     void loadDetails(ifstream& file) override {
-        file >> length >> x >> y;
+        file >> length >> x >> y >> filling >> color >> id;
     }
     ~Line() override{};
 };
@@ -455,21 +468,10 @@ void Board::save(const string& filename) {
         cerr << "Error: Could not open file for saving." << endl;
         return;
     }
-
-    file << width << " " << height << "\n";
-
-    for (auto& row : grid) {
-        for (auto& cell : row) {
-            file << cell;
-        }
-        file << "\n";
-    }
-
     file << figures.size() << "\n";
     for (const auto& figure : figures) {
-        figure->figureDetails();
+        figure->saveDetails(file);
     }
-
     file.close();
 }
 
@@ -480,37 +482,37 @@ void Board::load(const string& filename) {
         cerr << "Error: Could not open file for loading." << endl;
         return;
     }
-
-    file >> width >> height;
     grid.clear();
     grid.resize(height, vector<char>(width, ' '));
 
-    string line;
-    getline(file, line);
-    for (int i = 0; i < height; ++i) {
-        getline(file, line);
-        for (int j = 0; j < width; ++j) {
-            grid[i][j] = line[j];
-        }
-    }
-
-    clear();
     int numFigures;
     file >> numFigures;
+    file.ignore();
+
     for (int i = 0; i < numFigures; ++i) {
         string figureType;
-        file >> figureType;
+        getline(file, figureType);
 
         Figure* figure = nullptr;
-        if (figureType == "Triangle") {
+
+        if (figureType.find("Triangle") != string::npos) {
             figure = new Triangle();
-        } else if (figureType == "Circle") {
+        }
+        else if (figureType.find("Circle") != string::npos) {
             figure = new Circle();
+        }
+        else if (figureType.find("Square") != string::npos) {
+            figure = new Square;
+        }
+        else if(figureType.find("Line") != string::npos) {
+            figure = new Line;
         }
 
         if (figure != nullptr) {
             figure->loadDetails(file);
-            add(figure);
+            figures.push_back(figure);
+        } else {
+            cerr << "Error: Unknown figure type in file." << endl;
         }
     }
 
