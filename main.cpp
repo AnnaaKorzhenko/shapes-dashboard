@@ -123,9 +123,9 @@ public:
         cin >> color;
         cout << "Enter the triangle height" << endl;
         cin >> height;
-        cout << "Enter the x-coordinate of the left vertex" << endl;
+        cout << "Enter the x-coordinate of the top vertex" << endl;
         cin >> x;
-        cout << "Enter the y-coordinate of the left vertex" << endl;
+        cout << "Enter the y-coordinate of the top vertex" << endl;
         cin >> y;
     }
 
@@ -171,7 +171,7 @@ public:
     }
 
     void figureDetails() override {
-        cout << "Triangle: height = " << height << ", left vertex at (" << x << ", " << y << ")\n";
+        cout << "Triangle: height = " << height << ", top vertex at (" << x << ", " << y << ")\n";
         cout << "Filling: " << filling << ", color: " << color;
     }
     void loadDetails(ifstream& file) override {
@@ -256,6 +256,16 @@ public:
         for (int i = y; i < y + side; ++i) {
             if (x + side - 1 >= 0 && x + side - 1 < board.width && i >= 0 && i < board.height) {
                 board.grid[i][x + side - 1] = color;
+            }
+        }
+
+        if (filling == "fi") {
+            for (int i = y + 1; i < y + side - 1; ++i) {
+                for (int j = x + 1; j < x + side - 1; ++j) {
+                    if (i >= 0 && i < board.height && j >= 0 && j < board.width) {
+                        board.grid[i][j] = color;
+                    }
+                }
             }
         }
     };
