@@ -148,10 +148,24 @@ public:
         }
 
         for (int j = 0; j < 2 * height - 1; ++j) {
-            int baseX = x - height + 1 + j;
+            int baseX = x - height +1 + j;
             int baseY = y + height - 1;
             if (baseX >= 0 && baseX < board.width && baseY >= 0 && baseY < board.height) {
                 board.grid[baseY][baseX] = color;
+            }
+        }
+        if (filling == "fi") {
+            for (int i = 0; i < height; ++i) {
+                int leftMost = x - i;
+                int rightMost = x + i;
+                int posY = y + i;
+                if (posY >= 0 && posY < board.height) {
+                    for (int j = leftMost + 1; j < rightMost; ++j) {
+                        if (j >= 0 && j < board.width) {
+                            board.grid[posY][j] = color;
+                        }
+                    }
+                }
             }
         }
     }
@@ -497,3 +511,10 @@ int main() {
     Communicator communicator;
     communicator.executeCommand(board);
 }
+
+// didnt implement drawing logic for the filled figures
+// edit
+// paint
+// move
+// check the save and load, need to change them
+// check all the constarints and just add conditions and additional elses for handling unexpected behaviour
