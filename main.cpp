@@ -201,8 +201,15 @@ public:
 
         for (int i = 0; i < board.height; ++i) {
             for (int j = 0; j < board.width; ++j) {
-                if (pow(j - x, 2) + pow(i - y, 2) == pow(radius, 2)) {
-                    board.grid[i][j] = color;
+                if (filling == "fi") {
+                    if (pow(j - x, 2) + pow(i - y, 2) <= pow(radius, 2)) {
+                        board.grid[i][j] = color;
+                    }
+                }
+                else {
+                    if (pow(j - x, 2) + pow(i - y, 2) == pow(radius, 2)) {
+                        board.grid[i][j] = color;
+                    }
                 }
             }
         }
@@ -522,7 +529,6 @@ int main() {
     communicator.executeCommand(board);
 }
 
-// didnt implement drawing logic for the filled figures
 // edit
 // paint
 // move
