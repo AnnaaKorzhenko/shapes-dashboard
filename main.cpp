@@ -238,7 +238,7 @@ public:
         cout << "ID: " << id << endl;
     }
     void saveDetails(ofstream& file) override {
-        file << "Traingle" << height << x << y << filling << color << id << endl;
+        file << "Traingle" << " " << height << " " <<  x << " " << y << " "  << filling << " " << color << " " << id << "\n";
     }
     void loadDetails(ifstream& file) override {
         file >> height >> x >> y >> filling >> color >> id;
@@ -307,7 +307,7 @@ public:
         cout << "ID: " << id << endl;
     }
     void saveDetails(ofstream& file) override {
-        file << "Circle" << radius << x << y << filling << color << id << endl;
+        file << "Circle" << " " << radius << " " <<  x << " " << y << " "  << filling << " " << color << " " << id << "\n";
     }
     void loadDetails(ifstream& file) override {
         file >> radius >> x >> y >> filling >> color >> id;
@@ -394,7 +394,7 @@ public:
         cout << "ID: " << id << endl;
     }
     void saveDetails(ofstream& file) override {
-        file << "Square" << side << x << y << filling << color << id << endl;
+        file << "Square" << " " << side << " " <<  x << " " << y << " "  << filling << " " << color << " " << id << "\n";
     }
     void loadDetails(ifstream& file) override {
         file >> side >> x >> y >> filling >> color >> id;
@@ -454,7 +454,7 @@ public:
         cout << "ID: " << id << endl;
     }
     void saveDetails(ofstream& file) override {
-        file << "Line" << length << x << y << filling << color << id << endl;
+        file << "Line" << " " << length << " " <<  x << " " << y << " "  << filling << " " << color << " " << id << "\n";
     }
     void loadDetails(ifstream& file) override {
         file >> length >> x >> y >> filling >> color >> id;
@@ -491,28 +491,29 @@ void Board::load(const string& filename) {
 
     for (int i = 0; i < numFigures; ++i) {
         string figureType;
-        getline(file, figureType);
+        file >> figureType;
 
         Figure* figure = nullptr;
 
-        if (figureType.find("Triangle") != string::npos) {
+
+        if (figureType == "Triangle") {
             figure = new Triangle();
         }
-        else if (figureType.find("Circle") != string::npos) {
+        else if (figureType == "Circle") {
             figure = new Circle();
         }
-        else if (figureType.find("Square") != string::npos) {
-            figure = new Square;
+        else if (figureType == "Square") {
+            figure = new Square();
         }
-        else if(figureType.find("Line") != string::npos) {
-            figure = new Line;
+        else if (figureType == "Line") {
+            figure = new Line();
         }
-
         if (figure != nullptr) {
             figure->loadDetails(file);
             figures.push_back(figure);
         } else {
-            cerr << "Error: Unknown figure type in file." << endl;
+            cerr << "Error: Unknown figure type '" << figureType << "' in file." << endl;
+            file.ignore(numeric_limits<streamsize>::max(), '\n');
         }
     }
 
