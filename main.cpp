@@ -16,8 +16,8 @@ public:
     void setId(int theId) {
         id = theId;
     }
-    virtual void setter(){};
-    virtual void editor(string param){};
+    virtual void setter(Board& board){};
+    virtual void editor(string param, Board* board){};
     virtual void drawFigure(Board& board){};
     virtual void figureDetails(){};
     virtual void saveDetails(ofstream& file){};
@@ -70,8 +70,8 @@ public:
         cout << "Line - Filled or frame - Color - Length - Starting point coordinates" << endl;
 
     };
-    void add(Figure* figure) {
-        figure->setter();
+    void add(Figure* figure, Board& board) {
+        figure->setter(board);
         if (figures.size() == 0) {
             figure->setId(1);
         }
@@ -97,7 +97,7 @@ public:
         if (!figures.empty()) {
             if(figures.at(id-1)) {
                 Figure* figure = figures.at(id-1);
-                figure->editor("length");
+                figure->editor("length", this);
             }
             else {
                 cout << "Edit failed :(" << endl;
@@ -108,7 +108,7 @@ public:
         if (!figures.empty()) {
             if(figures.at(id-1)) {
                 Figure* figure = figures.at(id-1);
-                figure->editor("color");
+                figure->editor("color", this);
             }
             else {
                 cout << "Edit failed :(" << endl;
@@ -119,7 +119,7 @@ public:
         if (!figures.empty()) {
             if(figures.at(id-1)) {
                 Figure* figure = figures.at(id-1);
-                figure->editor("coordinates");
+                figure->editor("coordinates", this);
             }
             else {
                 cout << "Edit failed :(" << endl;
@@ -155,7 +155,7 @@ public:
 class Triangle : public Figure {
     int height, x, y;
 public:
-    void setter() override {
+    void setter(Board& board) override {
         cout << "Do you want the triangle filled or just frame? fi/fr" << endl;
         cin >> filling;
         cout << "Which color do you want it to be?" << endl;
@@ -167,13 +167,33 @@ public:
         cin >> x;
         cout << "Enter the y-coordinate of the top vertex" << endl;
         cin >> y;
+        while (height <= 0 || height > board.height) {
+            cout << "Error: Height must be positive and less than board's height (" << board.height << ")" << endl;
+            cout << "Enter the triangle height" << endl;
+            cin >> height;
+        };
+        while (x - height + 1 < 0 || x + height - 1 >= board.width) {
+            cout << "Error: X-coordinate must allow the triangle to fit within the board's width (" << board.width << ")" << endl;
+            cout << "Enter the x-coordinate of the top vertex" << endl;
+            cin >> x;
+        };
+        while (y < 0 || y + height - 1 >= board.height) {
+            cout << "Error: Y-coordinate must allow the triangle to fit within the board's height (" << board.height << ")" << endl;
+            cout << "Enter the y-coordinate of the top vertex" << endl;
+            cin >> y;
+        };
     }
 
-    void editor(string param) override {
+    void editor(string param, Board* board) override {
         if (param == "length") {
             cout << "Enter the new triangle height" << endl;
             cin >> height;
             cout << "Selected figure has been edited" << endl;
+            while (height <= 0 || height > board->height) {
+                cout << "Error: Height must be positive and less than board's height (" << board->height << ")" << endl;
+                cout << "Enter the triangle height" << endl;
+                cin >> height;
+            };
         }
         else if (param == "coordinates") {
             cout << "Enter the x-coordinate of the top vertex" << endl;
@@ -181,6 +201,16 @@ public:
             cout << "Enter the y-coordinate of the top vertex" << endl;
             cin >> y;
             cout << "Selected figure has been edited" << endl;
+            while (x - height + 1 < 0 || x + height - 1 >= board->width) {
+                cout << "Error: X-coordinate must allow the triangle to fit within the board's width (" << board->width << ")" << endl;
+                cout << "Enter the x-coordinate of the top vertex" << endl;
+                cin >> x;
+            };
+            while (y < 0 || y + height - 1 >= board->height) {
+                cout << "Error: Y-coordinate must allow the triangle to fit within the board's height (" << board->height << ")" << endl;
+                cout << "Enter the y-coordinate of the top vertex" << endl;
+                cin >> y;
+            };
         }
         else if(param == "color") {
             cout << "Enter the color to paint triangle to" << endl;
@@ -249,7 +279,7 @@ public:
 class Circle : public Figure {
     int radius, x, y;
 public:
-    void setter() override {
+    void setter(Board& board) override {
         cout << "Do you want the circle filled or just frame? fi/fr" << endl;
         cin >> filling;
         cout << "Which color do you want it to be?" << endl;
@@ -257,15 +287,35 @@ public:
         cin >> color;
         cout << "Enter radius" << endl;
         cin >> radius;
-        cout << "Enter x-coordiante of the center" << endl;
+        cout << "Enter x-coordinate of the center" << endl;
         cin >> x;
-        cout << "Enter y-coordiante of the center" << endl;
+        cout << "Enter y-coordinate of the center" << endl;
         cin >> y;
+        while (radius <= 0 || (x - radius < 0 && x + radius >= board.width) || (y - radius < 0 && y + radius >= board.height)){
+            cout << "Error: Radius must be positive and the circle must fit within the board." << endl;
+            cout << "Enter radius" << endl;
+            cin >> radius;
+        }
+        while (x - radius < 0 && x + radius >= board.width) {
+            cout << "Error: X-coordinate and radius must ensure the circle fits within the board's width (" << board.width << ")" << endl;
+            cout << "Enter x-coordinate of the center" << endl;
+            cin >> x;
+        }
+        while (y - radius < 0 && y + radius >= board.height) {
+            cout << "Error: Y-coordinate and radius must ensure the circle fits within the board's height (" << board.height << ")" << endl;
+            cout << "Enter y-coordinate of the center" << endl;
+            cin >> y;
+        }
     }
-    void editor(string param) override {
+    void editor(string param, Board* board) override {
         if (param == "length") {
             cout << "Enter the new radius" << endl;
             cin >> radius;
+            while (radius <= 0 || (x - radius < 0 && x + radius >= board->width) || (y - radius < 0 && y + radius >= board->height)){
+                cout << "Error: Radius must be positive and the circle must fit within the board." << endl;
+                cout << "Enter radius" << endl;
+                cin >> radius;
+            }
             cout << "Selected figure has been edited" << endl;
         }
         else if (param == "coordinates") {
@@ -274,6 +324,16 @@ public:
             cout << "Enter the y-coordinate of the top vertex" << endl;
             cin >> y;
             cout << "Selected figure has been edited" << endl;
+            while (x - radius < 0 && x + radius >= board->width) {
+                cout << "Error: X-coordinate and radius must ensure the circle fits within the board's width (" << board->width << ")" << endl;
+                cout << "Enter x-coordinate of the center" << endl;
+                cin >> x;
+            }
+            while (y - radius < 0 && y + radius >= board->height) {
+                cout << "Error: Y-coordinate and radius must ensure the circle fits within the board's height (" << board->height << ")" << endl;
+                cout << "Enter y-coordinate of the center" << endl;
+                cin >> y;
+            }
         }
         else if(param == "color") {
             cout << "Enter the color to paint circle to" << endl;
@@ -318,7 +378,7 @@ public:
 class Square : public Figure {
     int side, x, y;
 public:
-    void setter() override {
+    void setter(Board& board) override {
         cout << "Do you want the square filled or just frame? fi/fr" << endl;
         cin >> filling;
         cout << "Which color do you want it to be?" << endl;
@@ -326,16 +386,36 @@ public:
         cin >> color;
         cout << "Enter side length" << endl;
         cin >> side;
-        cout << "Enter x-coordiante of the left top vertex" << endl;
+        cout << "Enter x-coordinate of the left top vertex" << endl;
         cin >> x;
-        cout << "Enter y-coordiante of the left top vertex" << endl;
+        cout << "Enter y-coordinate of the left top vertex" << endl;
         cin >> y;
+        while (side <= 0 || x + side > board.width || y + side > board.height) {
+            cout << "Error: Side length must be positive and the square must fit within the board." << endl;
+            cout << "Enter side length" << endl;
+            cin >> side;
+        }
+        while (x < 0 || x + side > board.width) {
+            cout << "Error: X-coordinate and side length must ensure the square fits within the board's width (" << board.width << ")" << endl;
+            cout << "Enter x-coordinate of the left top vertex" << endl;
+            cin >> x;
+        }
+        while (y < 0 || y + side > board.height) {
+            cout << "Error: Y-coordinate and side length must ensure the square fits within the board's height (" << board.height << ")" << endl;
+            cout << "Enter y-coordinate of the left top vertex" << endl;
+            cin >> y;
+        }
     }
-    void editor(string param) override {
+    void editor(string param, Board* board) override {
         if (param == "length") {
             cout << "Enter the new square side" << endl;
             cin >> side;
             cout << "Selected figure has been edited" << endl;
+            while (side <= 0 || x + side > board->width || y + side > board->height) {
+                cout << "Error: Side length must be positive and the square must fit within the board." << endl;
+                cout << "Enter side length" << endl;
+                cin >> side;
+            }
         }
         else if (param == "coordinates") {
             cout << "Enter the x-coordinate of the top vertex" << endl;
@@ -343,6 +423,16 @@ public:
             cout << "Enter the y-coordinate of the top vertex" << endl;
             cin >> y;
             cout << "Selected figure has been edited" << endl;
+            while (x < 0 || x + side > board->width) {
+                cout << "Error: X-coordinate and side length must ensure the square fits within the board's width (" << board->width << ")" << endl;
+                cout << "Enter x-coordinate of the left top vertex" << endl;
+                cin >> x;
+            }
+            while (y < 0 || y + side > board->height) {
+                cout << "Error: Y-coordinate and side length must ensure the square fits within the board's height (" << board->height << ")" << endl;
+                cout << "Enter y-coordinate of the left top vertex" << endl;
+                cin >> y;
+            }
         }
         else if(param == "color") {
             cout << "Enter the color to paint sqaure to" << endl;
@@ -405,23 +495,43 @@ public:
 class Line : public Figure {
     int length, x, y;
 public:
-    void setter() override {
+    void setter(Board& board) override {
         filling = "fi";
         cout << "Which color do you want the line to be?" << endl;
         cout << "r - red\ng - green\nb - blue\ny - yellow\no - orange\np - pink" << endl;
         cin >> color;
-        cout << "Enter legth of the line" << endl;
+        cout << "Enter length of the line" << endl;
         cin >> length;
-        cout << "Enter x-coordiante of the strating point" << endl;
+        cout << "Enter x-coordinate of the starting point" << endl;
         cin >> x;
-        cout << "Enter y-coordiante of the starting point" << endl;
+        cout << "Enter y-coordinate of the starting point" << endl;
         cin >> y;
+        while (length <= 0 || x + length > board.width || y < 0 || y >= board.height) {
+            cout << "Error: Length must be positive, and the line must fit within the board horizontally." << endl;
+            cout << "Enter length of the line" << endl;
+            cin >> length;
+        };
+        while (x < 0 || x + length > board.width) {
+            cout << "Error: X-coordinate and length must ensure the line fits within the board's width (" << board.width << ")" << endl;
+            cout << "Enter x-coordinate of the starting point" << endl;
+            cin >> x;
+        };
+        while (y < 0 || y >= board.height) {
+            cout << "Error: Y-coordinate must ensure the line stays within the board's height (" << board.height << ")" << endl;
+            cout << "Enter y-coordinate of the starting point" << endl;
+            cin >> y;
+        };
     }
-    void editor(string param) override {
+    void editor(string param, Board* board) override {
         if (param == "length") {
             cout << "Enter the new line length" << endl;
             cin >> length;
             cout << "Selected figure has been edited" << endl;
+            while (length <= 0 || x + length > board->width || y < 0 || y >= board->height) {
+                cout << "Error: Length must be positive, and the line must fit within the board horizontally." << endl;
+                cout << "Enter length of the line" << endl;
+                cin >> length;
+            };
         }
         else if (param == "coordinates") {
             cout << "Enter the x-coordinate of the top vertex" << endl;
@@ -429,6 +539,16 @@ public:
             cout << "Enter the y-coordinate of the top vertex" << endl;
             cin >> y;
             cout << "Selected figure has been edited" << endl;
+            while (x < 0 || x + length > board->width) {
+                cout << "Error: X-coordinate and length must ensure the line fits within the board's width (" << board->width << ")" << endl;
+                cout << "Enter x-coordinate of the starting point" << endl;
+                cin >> x;
+            };
+            while (y < 0 || y >= board->height) {
+                cout << "Error: Y-coordinate must ensure the line stays within the board's height (" << board->height << ")" << endl;
+                cout << "Enter y-coordinate of the starting point" << endl;
+                cin >> y;
+            };
         }
         else if(param == "color") {
             cout << "Enter the color to paint line to" << endl;
@@ -586,7 +706,7 @@ public:
                         break;
                     }
                     if (figure != nullptr) {
-                        board.add(figure);
+                        board.add(figure, board);
                         cout << "The figure has been added" << endl;
                     }
                     cout << "Do you want to continue?" << endl;
@@ -680,7 +800,7 @@ public:
 
 int main() {
     Board board;
-    board.setDimensions(20, 20);
+    board.setDimensions(10, 10);
     Communicator communicator;
     communicator.executeCommand(board);
 }
